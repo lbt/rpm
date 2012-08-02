@@ -55,6 +55,7 @@ static int skipClean = 0;		/*!< from --skip-clean */
 static int skipPrep = 0;		/*!< from --skip-prep */
 static char buildMode = 0;		/*!< Build mode (one of "btBC") */
 static char buildChar = 0;		/*!< Build stage (one of "abcilps ") */
+static rpmBuildFlags nobuildAmount = 0;	/*!< Build stage disablers */
 static ARGV_t build_targets = NULL;	/*!< Target platform(s) */
 
 static void buildArgCallback( poptContext con,
@@ -183,6 +184,11 @@ static struct poptOption rpmBuildPoptTable[] = {
  { "nodirtokens", '\0', 0, 0, POPT_NODIRTOKENS,
 	N_("generate package header(s) compatible with (legacy) rpm v3 packaging"),
 	NULL},
+
+ { "noclean", '\0', POPT_BIT_SET, &nobuildAmount, RPMBUILD_CLEAN,
+	N_("do not execute %clean stage of the build"), NULL },
+ { "nocheck", '\0', POPT_BIT_SET, &nobuildAmount, RPMBUILD_CHECK,
+	N_("do not execute %check stage of the build"), NULL },
 
  { "nolang", '\0', POPT_ARGFLAG_DOC_HIDDEN, 0, POPT_NOLANG,
 	N_("do not accept i18N msgstr's from specfile"), NULL},
@@ -573,6 +579,7 @@ int main(int argc, char *argv[])
 	    ba->buildAmount |= RPMBUILD_CLEAN;
 	    ba->buildAmount |= RPMBUILD_RMBUILD;
 	}
+	ba->buildAmount &= ~(nobuildAmount);
 
 	while ((pkg = poptGetArg(optCon))) {
 	    char * specFile = NULL;
@@ -622,6 +629,7 @@ int main(int argc, char *argv[])
 	    ba->buildAmount |= RPMBUILD_PACKAGESOURCE;
 	    break;
 	}
+	ba->buildAmount &= ~(nobuildAmount);
 
 	while ((pkg = poptGetArg(optCon))) {
 	    ba->rootdir = rpmcliRootDir;
