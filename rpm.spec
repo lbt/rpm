@@ -35,14 +35,17 @@ Url: http://www.rpm.org/
 # Partially GPL/LGPL dual-licensed and some bits with BSD
 # SourceLicense: (GPLv2+ and LGPLv2+ with exceptions) and BSD 
 License: GPLv2+
-##PYTHON##
+##END_OF_INCLUDE_IN_PYTHON_SPEC##
 
 Requires: curl
 Requires: coreutils
 Requires: db4-utils
 BuildRequires: db4-devel
 
-BuildRequires: %{_vendor}-rpm-config
+BuildRequires: meego-rpm-config
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: libtool
 BuildRequires: gawk
 BuildRequires: elfutils-devel >= 0.112
 BuildRequires: elfutils-libelf-devel
