@@ -29,11 +29,12 @@ static rpmRC checkOwners(const char * urlfn)
 		urlfn, strerror(errno));
 	return RPMRC_FAIL;
     }
-    if (!rpmugUname(sb.st_uid) || !rpmugGname(sb.st_gid)) {
+/* Mer does not require uid/gid of files to have a valid username/groupname entry
+	if (!rpmugUname(sb.st_uid) || !rpmugGname(sb.st_gid)) {
 	rpmlog(RPMLOG_ERR, _("Bad owner/group: %s\n"), urlfn);
 	return RPMRC_FAIL;
     }
-
+*/
     return RPMRC_OK;
 }
 
