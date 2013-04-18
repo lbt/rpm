@@ -56,6 +56,7 @@ static int skipPrep = 0;		/*!< from --skip-prep */
 static char buildMode = 0;		/*!< Build mode (one of "btBC") */
 static char buildChar = 0;		/*!< Build stage (one of "abcilps ") */
 static rpmBuildFlags nobuildAmount = 0;	/*!< Build stage disablers */
+static rpmBuildFlags dobuildAmount = 0;	/*!< Build stage enablers */
 static ARGV_t build_targets = NULL;	/*!< Target platform(s) */
 
 static void buildArgCallback( poptContext con,
@@ -162,6 +163,25 @@ static struct poptOption rpmBuildPoptTable[] = {
 	N_("build source package only from <tarball>"),
 	N_("<tarball>") },
 
+ /* the --do* options allow a subset of build phases to be executed */
+ { "doprep", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_PREP,
+	N_("execute %prep stage of the build"), NULL },
+ { "dobuild", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_BUILD,
+	N_("execute %build stage of the build"), NULL },
+ { "doinstall", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_INSTALL,
+	N_("execute %install stage of the build"), NULL },
+ { "dobinary", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_PACKAGEBINARY,
+	N_("build binary packages"), NULL },
+ { "dosource", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_PACKAGESOURCE,
+	N_("build source packages"), NULL },
+ { "doclean", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_CLEAN,
+	N_("execute %clean stage of the build"), NULL },
+ { "docheck", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_CHECK,
+	N_("execute rpm checks"), NULL },
+ { "dofilecheck", '\0', POPT_BIT_SET, &dobuildAmount, RPMBUILD_FILECHECK,
+	N_("execute rpm file checks"), NULL },
+
+ 
  { "rebuild", '\0', 0, 0, POPT_REBUILD,
 	N_("build binary package from <source package>"),
 	N_("<source package>") },
@@ -187,6 +207,8 @@ static struct poptOption rpmBuildPoptTable[] = {
 
  { "noclean", '\0', POPT_BIT_SET, &nobuildAmount, RPMBUILD_CLEAN,
 	N_("do not execute %clean stage of the build"), NULL },
+ { "noprep", '\0', POPT_BIT_SET, &nobuildAmount, RPMBUILD_PREP,
+	N_("do not execute %prep stage of the build"), NULL },
  { "nocheck", '\0', POPT_BIT_SET, &nobuildAmount, RPMBUILD_CHECK,
 	N_("do not execute %check stage of the build"), NULL },
 
@@ -580,6 +602,9 @@ int main(int argc, char *argv[])
 	    ba->buildAmount |= RPMBUILD_RMBUILD;
 	}
 	ba->buildAmount &= ~(nobuildAmount);
+	if (dobuildAmount > 0) {
+		ba->buildAmount = dobuildAmount;
+	}
 
 	while ((pkg = poptGetArg(optCon))) {
 	    char * specFile = NULL;
@@ -630,6 +655,10 @@ int main(int argc, char *argv[])
 	    break;
 	}
 	ba->buildAmount &= ~(nobuildAmount);
+	/* if any of --do* options are specified they override */
+	if (dobuildAmount > 0) {
+		ba->buildAmount = dobuildAmount;
+	}
 
 	while ((pkg = poptGetArg(optCon))) {
 	    ba->rootdir = rpmcliRootDir;
