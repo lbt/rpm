@@ -28,6 +28,7 @@ static struct rpmBuildArguments_s rpmBTArgs;
 #define	POPT_NOBUILD		-1017
 #define	POPT_RMSPEC		-1019
 #define POPT_NODIRTOKENS	-1020
+#define POPT_BUILDINPLACE	-1021
 
 #define	POPT_REBUILD		0x4220
 #define	POPT_RECOMPILE		0x4320
@@ -58,6 +59,7 @@ static char buildChar = 0;		/*!< Build stage (one of "abcilps ") */
 static rpmBuildFlags nobuildAmount = 0;	/*!< Build stage disablers */
 static rpmBuildFlags dobuildAmount = 0;	/*!< Build stage enablers */
 static ARGV_t build_targets = NULL;	/*!< Target platform(s) */
+static int buildInPlace = 0;		/*!< from --build-in-place */
 
 static void buildArgCallback( poptContext con,
 	enum poptCallbackReason reason,
@@ -112,6 +114,10 @@ static void buildArgCallback( poptContext con,
 	spec_flags |= RPMSPEC_FORCE;
 	break;
 
+    case POPT_BUILDINPLACE:
+	rpmDefineMacro(NULL, "_build_in_place 1", 0);
+	buildInPlace = 1;
+	break;
     }
 }
 
@@ -191,6 +197,8 @@ static struct poptOption rpmBuildPoptTable[] = {
 
  { "buildroot", '\0', POPT_ARG_STRING, 0,  POPT_BUILDROOT,
 	N_("override build root"), "DIRECTORY" },
+ { "build-in-place", '\0', 0, 0, POPT_BUILDINPLACE,
+	N_("run build in current directory"), NULL },
  { "clean", '\0', 0, 0, POPT_RMBUILD,
 	N_("remove build tree when done"), NULL},
  { "force", '\0', POPT_ARGFLAG_DOC_HIDDEN, 0, RPMCLI_POPT_FORCE,
@@ -405,6 +413,13 @@ static int buildForTarget(rpmts ts, const char * arg, BTA_t ba)
     rpmSetTables(RPM_MACHTABLE_BUILDARCH, RPM_MACHTABLE_BUILDOS);
 #endif
 
+    /* Override default BUILD value for _builddir */
+    if (buildInPlace) {
+	char *cwd = rpmGetCwd();
+	addMacro(NULL, "_builddir", NULL, cwd, 0);		
+	free(cwd);
+    }
+    
     if (ba->buildRootOverride)
 	buildRootURL = rpmGenPath(NULL, ba->buildRootOverride, NULL);
 
