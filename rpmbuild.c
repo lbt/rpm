@@ -28,6 +28,7 @@ static struct rpmBuildArguments_s rpmBTArgs;
 #define	POPT_NOBUILD		-1017
 #define	POPT_RMSPEC		-1019
 #define POPT_NODIRTOKENS	-1020
+#define POPT_BUILDINPLACE	-1021
 
 #define	POPT_REBUILD		0x4220
 #define	POPT_RECOMPILE		0x4320
@@ -112,6 +113,10 @@ static void buildArgCallback( poptContext con,
 	spec_flags |= RPMSPEC_FORCE;
 	break;
 
+    case POPT_BUILDINPLACE:
+	rpmDefineMacro(NULL, "_build_in_place 1", 0);
+	break;
+
     }
 }
 
@@ -191,6 +196,8 @@ static struct poptOption rpmBuildPoptTable[] = {
 
  { "buildroot", '\0', POPT_ARG_STRING, 0,  POPT_BUILDROOT,
 	N_("override build root"), "DIRECTORY" },
+ { "build-in-place", '\0', 0, 0, POPT_BUILDINPLACE,
+	N_("run build in current directory"), NULL },
  { "clean", '\0', 0, 0, POPT_RMBUILD,
 	N_("remove build tree when done"), NULL},
  { "force", '\0', POPT_ARGFLAG_DOC_HIDDEN, 0, RPMCLI_POPT_FORCE,
