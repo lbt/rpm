@@ -67,6 +67,10 @@ static const struct poptOption rdbOptions[] = {
 
  { "nodbsync",	0,POPT_ARG_NONE,	&staticdbi.dbi_no_dbsync, 0,
 	NULL, NULL },
+
+ { "really_nodbsync", 0,POPT_ARG_NONE,        &staticdbi.dbi_really_no_dbsync, 0,
+        NULL, NULL },
+
  { "lockdbfd",	0,POPT_ARG_NONE,	&staticdbi.dbi_lockdbfd, 0,
 	NULL, NULL },
 
