@@ -691,7 +691,7 @@ print (t)\
   PKG_CONFIG_PATH=\"%{_libdir}/pkgconfig:%{_datadir}/pkgconfig\"\
   export PKG_CONFIG_PATH\
   \
-  %{verbose:set -x}%{!verbose:exec > /dev/null}\
+  %{verbose:%{!noecho:set -x}}%{!verbose:exec > /dev/null}\
   umask 022\
   cd \"%{u2p:%{_builddir}}\"\
 
